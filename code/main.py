@@ -51,6 +51,7 @@ brain_config = {**config['brains']['base'], **config['brains'][brain_type]}
 brain_module = BrainTypes[brain_type]
 
 # initialize a brain instance from whichever brain module you loaded
+print('entering brain')
 brain = brain_module.Brain(
     brain_config, camera, distance_sensors, leds, switches, vehicle)
 
