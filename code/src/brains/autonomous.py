@@ -25,7 +25,8 @@ class Brain(base.Brain):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
-        cv2.imwrite('hsl_image.jpg', hsl_image)
+        rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imwrite('rgb2_image.jpg', image)
 
         lower_blue = np.array([90, 70, 170])
         upper_blue = np.array([150, 140, 255])
