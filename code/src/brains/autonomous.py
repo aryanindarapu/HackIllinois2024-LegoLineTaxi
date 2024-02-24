@@ -13,6 +13,8 @@ class Brain(base.Brain):
 
     def __init__(self, config: Config, *arg):
         super().__init__(config, *arg)
+        
+        self.state = "forward"
 
     def logic(self):
         """
@@ -59,11 +61,11 @@ class Brain(base.Brain):
             self.vehicle.stop()
 
         # if anything is detected by the sonic sensors, stop the car
-        stop = False
-        for distance_sensor in self.distance_sensors:
-            if distance_sensor.distance < 0.25:
-                self.vehicle.stop()
-                stop = True
+        # stop = False
+        # for distance_sensor in self.distance_sensors:
+        #     if distance_sensor.distance < 0.25:
+        #         self.vehicle.stop()
+        #         stop = True
 
-        if not stop:
-            self.vehicle.drive_forward()
+        # if not stop:
+        #     self.vehicle.drive_forward()
