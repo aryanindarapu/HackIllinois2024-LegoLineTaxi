@@ -4,7 +4,7 @@ import numpy as np
 def nothing(x):
     pass
 
-def tweakHSL(img, thresh=(150, 255)):
+def tweakHSL(img):
     hsl_img = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
     h, l, s = cv2.split(hsl_img)
     cv2.namedWindow('image')
