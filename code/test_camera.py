@@ -1,5 +1,6 @@
 from src import camera as camera_module
 import time
+import cv2
 
 if __name__ == '__main__':
 
@@ -14,6 +15,8 @@ if __name__ == '__main__':
     while time.time() - start_time < total_seconds:
         camera.capture()
         print(camera.image_array)
+        image = cv2.cvtColor(camera.image_array, cv2.COLOR_BGR2RGB)
+        cv2.imwrite("rbg_picture.jpg", image)
 
         time.sleep(max(0, 1/sample_hz -
                        (time.time() - start_time)))

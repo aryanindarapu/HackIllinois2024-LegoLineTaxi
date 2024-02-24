@@ -22,8 +22,9 @@ class Brain(base.Brain):
         """
 
         image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSL)
         cv2.imwrite('hsv_image.jpg', hsv_image)
 
         lower_yellow = np.array([20, 100, 100])
