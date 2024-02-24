@@ -42,7 +42,7 @@ def tweakHSL(img):
             break
 
 def main():
-    img = cv2.imread('test.jpg') # TODO: Replace with the path to the image you want to test
+    img = cv2.imread('./code/rgb2_image.jpg') # TODO: Replace with the path to the image you want to test
     tweakHSL(img)
     
 if __name__ == "__main__":
