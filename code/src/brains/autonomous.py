@@ -98,127 +98,161 @@ class Brain(base.Brain):
         # self.vehicle.pivot_left(0.4) # TODO: tune # whatever number is here (will have to test) Turning right to then go forward and avoid obstacle
         # time.sleep(1) # TODO: tune # whatever number is here (will have to test)  Turning right to then go forward and avoid obstacle
         self.vehicle.rotate_right()
-         
-        while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
-            print(self.distance_sensors[1].distance)
+
+        while True:
             self.vehicle.stop()
-            if self.distance_sensors[1].distance < 0.06:
-                # self.vehicle.pivot_right(0.4)
-                self.vehicle.turn_right(0.6)
-                time.sleep(0.15)
-            elif 0.05 <= self.distance_sensors[1].distance < 0.22:
-                self.vehicle.drive_forward(0.6)
-                time.sleep(0.15)
-            elif self.distance_sensors[1].distance == 1.0:
-                while self.distance_sensors[1].distance == 1.0:
-                    self.vehicle.turn_left(0.6)
-                    time.sleep(0.15)
-                    self.vehicle.stop()
-                    time.sleep(0.1)
-            else:
-                # self.vehicle.pivot_left(0.4)
-                self.vehicle.turn_left(0.45)
-                time.sleep(0.15)
-            # self.vehicle.drive_forward(0.8) # TODO: tune
-            # self.vehicle.drive(0.5, True, 0.5, True)
+            if self.distance_sensors[1].distance > 0.9:
+                self.vehicle.turn_left(0.7)
+
+            elif self.distance_sensors[1].distance < 0.1:
+                self.vehicle.turn_right(0.7)
             
-        # while self.distance_sensors[1].distance > 0.6:
-        #     self.vehicle.pivot_left(0.6)
+            else: # 0.1 < dist < 0.9
+                self.vehicle.drive_forward(0.7)
+
+                image = self.camera.capture()
+                image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+                rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                cv2.imwrite('rgb2_image.jpg', image)
+
+                lower_blue = np.array([90, 70, 170])
+                upper_blue = np.array([150, 235, 255])
+
+                # Threshold the HSV image to get only blue colors
+                mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
+                contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+                if contours:
+                    self.vehicle.turn_right(0.7)
+                    time.sleep(0.35)
+                    self.next_state = 'forward'
+                    return
             
-            
-        print(self.distance_sensors[1].distance)
-        self.vehicle.stop()
-        time.sleep(0.1)
-        
-        # print("turning left")
-        while self.distance_sensors[1].distance == 1.0:
-            self.vehicle.turn_left(0.6)
             time.sleep(0.15)
-            self.vehicle.stop()
-            time.sleep(0.1)
-        # self.vehicle.turn_left(0.6)
-        # time.sleep(0.45)
+                
+
+        # while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
+        #     print(self.distance_sensors[1].distance)
+        #     self.vehicle.stop()
+        #     if self.distance_sensors[1].distance < 0.06:
+        #         # self.vehicle.pivot_right(0.4)
+        #         self.vehicle.turn_right(0.6)
+        #         time.sleep(0.15)
+        #     elif 0.05 <= self.distance_sensors[1].distance < 0.22:
+        #         self.vehicle.drive_forward(0.6)
+        #         time.sleep(0.15)
+        #     elif self.distance_sensors[1].distance == 1.0:
+        #         while self.distance_sensors[1].distance == 1.0:
+        #             self.vehicle.turn_left(0.6)
+        #             time.sleep(0.15)
+        #             self.vehicle.stop()
+        #             time.sleep(0.1)
+        #     else:
+        #         # self.vehicle.pivot_left(0.4)
+        #         self.vehicle.turn_left(0.45)
+        #         time.sleep(0.15)
+        #     # self.vehicle.drive_forward(0.8) # TODO: tune
+        #     # self.vehicle.drive(0.5, True, 0.5, True)
+            
+        # # while self.distance_sensors[1].distance > 0.6:
+        # #     self.vehicle.pivot_left(0.6)
+            
+            
+        # print(self.distance_sensors[1].distance)
         # self.vehicle.stop()
         # time.sleep(0.1)
         
-        print("driving forward")
-        self.vehicle.drive_forward(0.6)
-        time.sleep(0.6)
-        self.vehicle.stop()
-        time.sleep(0.1)
+        # # print("turning left")
+        # while self.distance_sensors[1].distance == 1.0:
+        #     self.vehicle.turn_left(0.6)
+        #     time.sleep(0.15)
+        #     self.vehicle.stop()
+        #     time.sleep(0.1)
+        # # self.vehicle.turn_left(0.6)
+        # # time.sleep(0.45)
+        # # self.vehicle.stop()
+        # # time.sleep(0.1)
         
-        while self.distance_sensors[1].distance == 1.0:
-            self.vehicle.turn_left(0.6)
-            time.sleep(0.15)
-            self.vehicle.stop()
-            time.sleep(0.1)
-        
-        print(self.distance_sensors[1].distance)
-        while self.distance_sensors[1].distance != 1.0:
-            print("starting on right edge")
-            print(self.distance_sensors[1].distance)
-            self.vehicle.stop()
-            if self.distance_sensors[1].distance < 0.05:
-                # self.vehicle.pivot_right(0.4)
-                self.vehicle.turn_right(0.6)
-                time.sleep(0.15)
-            elif 0.05 <= self.distance_sensors[1].distance < 0.25:
-                self.vehicle.drive_forward(0.6)
-                time.sleep(0.15)
-            else:
-                # self.vehicle.pivot_left(0.4)
-                self.vehicle.turn_left(0.6)
-                time.sleep(0.15)
-        
-        
-        # # while self.distance_sensors[1].distance > 0.6:
-        # # self.vehicle.rotate_left() # TODO: tune # whatever number is here (will have to test)  Turning left to then go forward and avoid obstacle
-        
-        # print(self.distance_sensors[1].distance)
-        # while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
-        #     self.vehicle.drive_forward(1) # TODO: tune
-            
-        # print(self.distance_sensors[1].distance)
+        # print("driving forward")
+        # self.vehicle.drive_forward(0.6)
+        # time.sleep(0.6)
         # self.vehicle.stop()
+        # time.sleep(0.1)
+        
+        # while self.distance_sensors[1].distance == 1.0:
+        #     self.vehicle.turn_left(0.6)
+        #     time.sleep(0.15)
+        #     self.vehicle.stop()
+        #     time.sleep(0.1)
+        
+        # print(self.distance_sensors[1].distance)
+        # while self.distance_sensors[1].distance != 1.0:
+        #     print("starting on right edge")
+        #     print(self.distance_sensors[1].distance)
+        #     self.vehicle.stop()
+        #     if self.distance_sensors[1].distance < 0.05:
+        #         # self.vehicle.pivot_right(0.4)
+        #         self.vehicle.turn_right(0.6)
+        #         time.sleep(0.15)
+        #     elif 0.05 <= self.distance_sensors[1].distance < 0.25:
+        #         self.vehicle.drive_forward(0.6)
+        #         time.sleep(0.15)
+        #     else:
+        #         # self.vehicle.pivot_left(0.4)
+        #         self.vehicle.turn_left(0.6)
+        #         time.sleep(0.15)
+        
+        
+        # # # while self.distance_sensors[1].distance > 0.6:
+        # # # self.vehicle.rotate_left() # TODO: tune # whatever number is here (will have to test)  Turning left to then go forward and avoid obstacle
+        
+        # # print(self.distance_sensors[1].distance)
+        # # while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
+        # #     self.vehicle.drive_forward(1) # TODO: tune
+            
+        # # print(self.distance_sensors[1].distance)
+        # # self.vehicle.stop()
+        # # self.vehicle.rotate_left() 
+        
+        
+        
         # self.vehicle.rotate_left() 
-        
-        
-        
-        self.vehicle.rotate_left() 
 
-        # see if blue line reappears and then follow it
-        image = self.camera.capture()
-        image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
-        rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        cv2.imwrite('rgb2_image.jpg', image)
+        # # see if blue line reappears and then follow it
+        # image = self.camera.capture()
+        # image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+        # rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # cv2.imwrite('rgb2_image.jpg', image)
 
-        lower_blue = np.array([90, 70, 170])
-        upper_blue = np.array([150, 235, 255])
+        # lower_blue = np.array([90, 70, 170])
+        # upper_blue = np.array([150, 235, 255])
 
-        # Threshold the HSV image to get only blue colors
-        mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
-        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        while not contours:
-            self.vehicle.drive_forward(1)
-            image = self.camera.capture()
-            image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
-            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            cv2.imwrite('rgb2_image.jpg', image)
+        # # Threshold the HSV image to get only blue colors
+        # mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
+        # contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # while not contours:
+        #     self.vehicle.drive_forward(1)
+        #     image = self.camera.capture()
+        #     image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+        #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        #     hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+        #     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        #     cv2.imwrite('rgb2_image.jpg', image)
 
-            lower_blue = np.array([90, 70, 170])
-            upper_blue = np.array([150, 235, 255])
+        #     lower_blue = np.array([90, 70, 170])
+        #     upper_blue = np.array([150, 235, 255])
 
-            # Threshold the HSV image to get only blue colors
-            mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
-            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        if contours :
-            self.vehicle.turn_right(0.5)
-            time.sleep(0.35)
-            self.next_state = 'forward'
+        #     # Threshold the HSV image to get only blue colors
+        #     mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
+        #     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # if contours :
+        #     self.vehicle.turn_right(0.5)
+        #     time.sleep(0.35)
+        #     self.next_state = 'forward'
         
 
         # stop when cleared obstacle horizontally 
@@ -262,7 +296,6 @@ class Brain(base.Brain):
                     time.sleep(1)
                     
                     self.avoid()
-                    self.next_state = "kill"
                     # self.next_state = "forward"
                     
                 case "stop":
