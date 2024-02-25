@@ -52,7 +52,9 @@ class Brain:
             self.logic()
 
             # ensure that the loop is running at the correct max frequency
-            time.sleep(max(0, 1/self.sample_hz -
-                       (time.time() - start_loop_time)))
+            time.sleep(max(0, 1/self.sample_hz - (time.time() - start_loop_time)))
 
             self.loop_counter += 1
+            
+            if self.loop_counter % 100 == 0:
+                print(f"loop counter: {self.loop_counter}")

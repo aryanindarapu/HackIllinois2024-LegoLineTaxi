@@ -1,8 +1,9 @@
 from . import base
 import cv2
 import numpy as np
-from pynput import keyboard
+# from pynput import keyboard
 import time
+import curses
 
 class Config(base.Config):
     pass
@@ -16,17 +17,16 @@ class Brain(base.Brain):
         super().__init__(config, *arg)
         
         self.state = "forward"
-        self.next_state = None
-        self.sample_hz = 10
+        self.next_state = "forward"
         
-    def on_press(self, key):
-        try:
-            if key.char == 'q':  # If 'q' is pressed
-                self.next_state = "kill"
-                # Stop listener
-                return False
-        except AttributeError:
-            pass  # Handle special key presses that don't involve characters here if needed
+    # def on_press(self, key):
+    #     try:
+    #         if key.char == 'q':  # If 'q' is pressed
+    #             self.next_state = "kill"
+    #             # Stop listener
+    #             return False
+    #     except AttributeError:
+    #         pass  # Handle special key presses that don't involve characters here if needed
         
     def line_following(self):
         image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
@@ -70,17 +70,18 @@ class Brain(base.Brain):
             else:
                 print("Contour too small or not detected")  # Default action if contour is too small or not detected
                 # self.vehicle.stop()
-                next_state = "stop"
+                next_state = "forward"
                 # TODO: do something different maybe
         else:
             print("No blue line detected")  # Default action if no blue line is detected
-            next_state = "stop"
+            next_state = "forward"
             # TODO: do something different maybe
             
         return next_state
             
     # Returns True if the distance to the front is less than 0.25m
     def check_front_distance(self):
+        print(self.distance_sensors[0].distance, self.distance_sensors[1].distance)
         if self.distance_sensors[0].distance < 0.1:
             return True
         
@@ -90,46 +91,42 @@ class Brain(base.Brain):
         """
         Find the blue line in the camera feed, and drive the vehicle to follow it
         """
-        start_time = time.time()
+        try:
+            # print(self.sample_hz)
+            self.state = self.next_state
         
-        with keyboard.Listener(on_press=self.on_press) as listener:
-            listener.join()
-            
-            while True:
-                self.state = self.next_state
-                match self.state:
-                    case "forward":
-                        if self.check_front_distance():
-                            self.next_state = "avoid"
-                            break
-                        
-                        # self.vehicle.drive_forward(0.8)
-                        self.next_state = self.line_following() # should call drive_forward and sets next_state
-                        
-                    case "avoid":
-                        self.vehicle.stop()
-                        self.next_state = "stop"
-                        
-                    case "stop":
-                        self.vehicle.stop()
-                        self.next_state = "stop"
-                        
-                    case "kill":
-                        self.vehicle.stop()
-                        self.next_state = None
-                        return False
-
-                    case _:
-                        self.vehicle.stop()
-                        self.next_state = None
-                        return False
+            print(self.state)
+            match self.state:
+                case "forward":
+                    if self.check_front_distance():
+                        self.next_state = "avoid"
+                        return
                     
+                    print("line following")
+                    self.next_state = self.line_following() # should call drive_forward and sets next_state
                     
-                time.sleep(max(0, 1 / self.sample_hz - (time.time() - start_time)))
+                case "avoid":
+                    print("avoid")
+                    self.vehicle.stop()
+                    self.next_state = "stop"
+                    
+                case "stop":
+                    self.vehicle.stop()
+                    self.next_state = "stop"
+                    
+                case "kill":
+                    print("kill state")
+                    self.vehicle.stop()
+                    self.next_state = None
+                    return
 
-        # if anything is detected by the sonic sensors, stop the car
-        # stop = False
-        # for distance_sensor in self.distance_sensors:
-        #     if distance_sensor.distance < 0.25:
-        #         self.vehicle.stop()
-        #         stop = True
+                case _:
+                    self.vehicle.stop()
+                    self.next_state = None
+                    return
+                 
+        except KeyboardInterrupt as e:
+            print(e)
+            self.vehicle.stop()
+            self.next_state = None
+            return
