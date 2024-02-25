@@ -29,7 +29,7 @@ class Brain(base.Brain):
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         cv2.imwrite('rgb2_image.jpg', image)
 
-        lower_blue = np.array([90, 80, 170])
+        lower_blue = np.array([90, 60, 60])
         upper_blue = np.array([150, 190, 255])
 
         # Threshold the HSV image to get only blue colors
@@ -40,6 +40,7 @@ class Brain(base.Brain):
         contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         self.vehicle.stop()
         next_state = None
+        # print(len(contours))
         if contours:
             # Assume the largest contour is the blue line
             largest_contour = max(contours, key=cv2.contourArea)
@@ -97,11 +98,14 @@ class Brain(base.Brain):
     def avoid(self):
         # self.vehicle.pivot_left(0.4) # TODO: tune # whatever number is here (will have to test) Turning right to then go forward and avoid obstacle
         # time.sleep(1) # TODO: tune # whatever number is here (will have to test)  Turning right to then go forward and avoid obstacle
+        # print("avoiding obstacle")
         self.vehicle.rotate_right()
-
-        while True:
+        start_time = time.time()
+        while time.time() - start_time < 25:
             self.vehicle.stop()
-            if self.distance_sensors[1].distance > 0.9:
+            time.sleep(0.1)
+            print(self.distance_sensors[1].distance)
+            if self.distance_sensors[1].distance > 0.16:
                 self.vehicle.turn_left(0.7)
 
             elif self.distance_sensors[1].distance < 0.1:
@@ -110,28 +114,33 @@ class Brain(base.Brain):
             else: # 0.1 < dist < 0.9
                 self.vehicle.drive_forward(0.7)
 
-                image = self.camera.capture()
-                image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
-                rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                cv2.imwrite('rgb2_image.jpg', image)
+                # image = self.camera.capture()
+                # image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+                # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                # hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+                # rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                # cv2.imwrite('rgb2_image.jpg', image)
 
-                lower_blue = np.array([90, 70, 170])
-                upper_blue = np.array([150, 235, 255])
+                # lower_blue = np.array([90, 70, 170])
+                # upper_blue = np.array([150, 235, 255])
 
-                # Threshold the HSV image to get only blue colors
-                mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
-                contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-                if contours:
-                    self.vehicle.turn_right(0.7)
-                    time.sleep(0.35)
-                    self.next_state = 'forward'
-                    return
+                # # Threshold the HSV image to get only blue colors
+                # mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
+                # contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                # print(len(contours))
+                # if contours:
+                #     largest_contour = max(contours, key=cv2.contourArea)
+                #     M = cv2.moments(largest_contour)
+                #     if M and M["m00"] > 50.0:
+                #         print("contours here", contours)
+                #         self.vehicle.turn_right(0.7)
+                #         time.sleep(0.35)
+                #         self.next_state = 'forward'
+                #         return
             
             time.sleep(0.15)
-                
+        
+        self.gun_it_to_blue_line()
 
         # while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
         #     print(self.distance_sensors[1].distance)
@@ -265,6 +274,33 @@ class Brain(base.Brain):
         # while self.distance_sensors[1].distance != 1: #while the distance from the left sensor to the obstacle is not 0, move forward
         #     self.vehicle.drive_forward(0.2) 
                         #stop
+                        
+    def gun_it_to_blue_line(self):
+        # image = self.camera.capture()
+        # image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+        # rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # cv2.imwrite('rgb2_image.jpg', image)
+
+        # lower_blue = np.array([90, 70, 170])
+        # upper_blue = np.array([150, 235, 255])
+
+        # # Threshold the HSV image to get only blue colors
+        # mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
+        # contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        
+        # if contours:
+        #     largest_contour = max(contours, key=cv2.contourArea)
+        #     M = cv2.moments(largest_contour)
+        #     if M and M["m00"] > 50.0:
+                # print("contours here", contours)
+                self.vehicle.drive_forward(1)
+                time.sleep(1)
+                self.vehicle.rotate_right()
+                self.next_state = 'forward'
+                return
+        
 
     def logic(self):
         """
@@ -296,6 +332,7 @@ class Brain(base.Brain):
                     time.sleep(1)
                     
                     self.avoid()
+                    
                     # self.next_state = "forward"
                     
                 case "stop":
