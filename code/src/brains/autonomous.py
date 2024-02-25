@@ -18,15 +18,8 @@ class Brain(base.Brain):
         
         self.state = "forward"
         self.next_state = "forward"
-        
-    # def on_press(self, key):
-    #     try:
-    #         if key.char == 'q':  # If 'q' is pressed
-    #             self.next_state = "kill"
-    #             # Stop listener
-    #             return False
-    #     except AttributeError:
-    #         pass  # Handle special key presses that don't involve characters here if needed
+        # self.state = "forward"
+        # self.next_state = "forward"
         
     def line_following(self):
         image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
