@@ -184,6 +184,43 @@ class Brain(base.Brain):
         
         
         
+        self.vehicle.rotate_left() 
+
+        # see if blue line reappears and then follow it
+        image = self.camera.capture()
+        image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+        rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imwrite('rgb2_image.jpg', image)
+
+        lower_blue = np.array([90, 70, 170])
+        upper_blue = np.array([150, 235, 255])
+
+        # Threshold the HSV image to get only blue colors
+        mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        while not contours:
+            self.vehicle.drive_forward(1)
+            image = self.camera.capture()
+            image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            hsl_image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            cv2.imwrite('rgb2_image.jpg', image)
+
+            lower_blue = np.array([90, 70, 170])
+            upper_blue = np.array([150, 235, 255])
+
+            # Threshold the HSV image to get only blue colors
+            mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
+            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        if contours :
+            self.vehicle.turn_right(0.5)
+            time.sleep(0.35)
+            self.next_state = 'forward'
+        
+
         # stop when cleared obstacle horizontally 
         # self.vehicle.pivot_right(0.4) # Turning left to then go forward and get around obstacle
         # time.sleep(0.2) # Turning left to then go forward to get around obstacle 
