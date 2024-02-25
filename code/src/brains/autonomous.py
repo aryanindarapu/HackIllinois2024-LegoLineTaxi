@@ -28,7 +28,7 @@ class Brain(base.Brain):
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         cv2.imwrite('rgb2_image.jpg', image)
 
-        lower_blue = np.array([90, 70, 170])
+        lower_blue = np.array([90, 70, 90])
         upper_blue = np.array([150, 235, 255])
 
         # Threshold the HSV image to get only blue colors
