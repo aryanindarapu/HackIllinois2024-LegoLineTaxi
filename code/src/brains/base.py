@@ -45,16 +45,22 @@ class Brain:
     def run(self):
         """The main loop of the Brain class. While running, and the switch is one, gather data from sensors and perform brain logic"""
 
-        while self.running:
-            start_loop_time = time.time()
+        try:
+            while self.running:
+                start_loop_time = time.time()
 
-            self.camera.capture()
-            self.logic()
+                self.camera.capture()
+                self.logic()               
 
-            # ensure that the loop is running at the correct max frequency
-            time.sleep(max(0, 1/self.sample_hz - (time.time() - start_loop_time)))
+                # ensure that the loop is running at the correct max frequency
+                time.sleep(max(0, 1/self.sample_hz - (time.time() - start_loop_time)))
 
-            self.loop_counter += 1
-            
-            if self.loop_counter % 100 == 0:
-                print(f"loop counter: {self.loop_counter}")
+                self.loop_counter += 1
+                
+                if self.loop_counter % 100 == 0:
+                    print(f"loop counter: {self.loop_counter}")
+        except KeyboardInterrupt:
+            self.vehicle.stop()
+            self.running = False
+            print("KeyboardInterrupt")
+            return

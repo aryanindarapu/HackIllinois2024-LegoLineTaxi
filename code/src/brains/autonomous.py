@@ -86,6 +86,9 @@ class Brain(base.Brain):
             return True
         
         return False
+    
+    def avoid_obstacle(self):
+        pass
 
     def logic(self):
         """
@@ -97,6 +100,14 @@ class Brain(base.Brain):
         
             print(self.state)
             match self.state:
+                case "fake_forward":
+                    if self.check_front_distance():
+                        self.next_state = "avoid"
+                        return
+                    
+                    self.vehicle.drive_forward(0.3)
+                    self.next_state = "fake_forward"
+                        
                 case "forward":
                     if self.check_front_distance():
                         self.next_state = "avoid"
@@ -108,6 +119,7 @@ class Brain(base.Brain):
                 case "avoid":
                     print("avoid")
                     self.vehicle.stop()
+                    # self.vehicle.pivot_left(0.5)
                     self.next_state = "stop"
                     
                 case "stop":
