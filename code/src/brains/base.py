@@ -60,7 +60,7 @@ class Brain:
                 if self.loop_counter % 100 == 0:
                     print(f"loop counter: {self.loop_counter}")
         except KeyboardInterrupt:
+            # print("Dying State:", self.state)
             self.vehicle.stop()
             self.running = True
             print("KeyboardInterrupt")
-            # self.run()

@@ -25,10 +25,23 @@ if __name__ == '__main__':
     )
 
     vehicle.stop()
-    next_state = "stop"
-    vehicle.pivot_left(0.4)
-    time.sleep(0.2)
-    next_state = "stop"
+    # vehicle.pivot_left(0.6)
+    # time.sleep(0.69)
+    
+    # vehicle.stop()
+    # time.sleep(1)
+    
+    # vehicle.pivot_right(0.6)
+    # time.sleep(0.63)
+    
+    # vehicle.rotate_left()
+    # time.sleep(1)
+    # vehicle.rotate_right()
+    
+    
+    # vehicle.stop()
+    # vehicle.drive_forward(1)    
+    
 
 
 

@@ -1,5 +1,6 @@
 from typing import TypedDict
 from . import motor
+import time
 
 
 class MotorsConfig(TypedDict):
@@ -45,6 +46,20 @@ class Vehicle:
         """at the same speed, drive the left motor forward, and the right motor backward"""
         self.left_motor.forward(speed)
         self.right_motor.backward(speed)
+        
+    def rotate_right(self) -> None:
+        self.pivot_right(0.6)
+        time.sleep(0.63)
+        
+        self.stop()
+        time.sleep(1)
+        
+    def rotate_left(self) -> None:       
+        self.pivot_left(0.6)
+        time.sleep(0.69)
+        
+        self.stop()
+        time.sleep(1)
 
     def drive(self, left_speed: float, left_direction: bool, right_speed: float, right_direction: bool) -> None:
         """Control each motor's speed and direction independently"""

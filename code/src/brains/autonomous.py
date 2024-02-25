@@ -16,10 +16,11 @@ class Brain(base.Brain):
     def __init__(self, config: Config, *arg):
         super().__init__(config, *arg)
         
+        # self.state = "fake_forward"
+        # self.next_state = "fake_forward"
+        
         self.state = "forward"
         self.next_state = "forward"
-        # self.state = "forward"
-        # self.next_state = "forward"
         
     def line_following(self):
         image = cv2.rotate(self.camera.image_array, cv2.ROTATE_180)
@@ -28,8 +29,8 @@ class Brain(base.Brain):
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         cv2.imwrite('rgb2_image.jpg', image)
 
-        lower_blue = np.array([90, 70, 170])
-        upper_blue = np.array([150, 235, 255])
+        lower_blue = np.array([90, 80, 170])
+        upper_blue = np.array([150, 190, 255])
 
         # Threshold the HSV image to get only blue colors
         mask = cv2.inRange(hsl_image, lower_blue, upper_blue)
@@ -43,8 +44,7 @@ class Brain(base.Brain):
             # Assume the largest contour is the blue line
             largest_contour = max(contours, key=cv2.contourArea)
             M = cv2.moments(largest_contour)
-            
-            if M["m00"] != 0:
+            if M["m00"] > 50.0:
                 # Calculate the center of the contour
                 cx = int(M["m10"] / M["m00"])
                 cy = int(M["m01"] / M["m00"])
@@ -52,12 +52,15 @@ class Brain(base.Brain):
                 
                 img_center = image.shape[1] // 2  # Get the center x-coordinate of the image
                 
-                if cx < img_center - 40:  # Threshold to avoid minor deviations
-                    self.vehicle.pivot_right(0.35)
-                elif cx > img_center + 40:
-                    self.vehicle.pivot_left(0.35)
+                if cx < img_center - 50:  # Threshold to avoid minor deviations
+                    self.vehicle.pivot_left(0.45)
+                    print("Pivoting left")
+                elif cx > img_center + 50:
+                    self.vehicle.pivot_right(0.45)
+                    print("Pivoting right")
                 else:
-                    self.vehicle.drive_forward(0.5)
+                    self.vehicle.drive_forward(0.5) # TODO: tune
+                    print("Driving forward")
                     
                 next_state = "forward"
             else:
@@ -75,29 +78,42 @@ class Brain(base.Brain):
     # Returns True if the distance to the front is less than 0.25m
     def check_front_distance(self):
         if self.distance_sensors[0].distance < 0.15: #distance sensor0 is the front sensor, 1 is the left 
+            print("front distance low")
             return True
         
         return False
+    
     def avoid(self):
-        self.vehicle.stop() # stops 
-        self.next_state = "stop" # goes to state stop
+        # self.vehicle.pivot_left(0.4) # TODO: tune # whatever number is here (will have to test) Turning right to then go forward and avoid obstacle
+        # time.sleep(1) # TODO: tune # whatever number is here (will have to test)  Turning right to then go forward and avoid obstacle
+        self.vehicle.rotate_right()
 
-        self.vehicle.pivot_left(0.4) # whatever number is here (will have to test) Turning right to then go forward and avoid obstacle
-        time.sleep(0.2) # whatever number is here (will have to test)  Turning right to then go forward and avoid obstacle
-
-        self.next_state = "stop" #stops 
-        while self.distance_sensors[1].distance < 0.6: #while the distance from the left sensor to the obstacle is < 1, move forward
-            self.vehicle.drive_forward(0.4) 
-        #    # stop when cleared obstacle horizontally 
-
-        self.vehicle.pivot_right(0.4) # Turning left to then go forward and get around obstacle
-        time.sleep(0.2) # Turning left to then go forward to get around obstacle 
+        # time.sleep(0.5)
+        print(self.distance_sensors[1].distance)
+        while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
+            self.vehicle.drive_forward(1) # TODO: tune
+            # self.vehicle.drive(0.5, True, 0.5, True)
         
-        self.vehicle.drive_forward(0.2)  #creeps forwards a little
-        time.sleep(0.2) #creeps forwards a little
+        print(self.distance_sensors[1].distance)
+        self.vehicle.stop()
+        self.vehicle.rotate_left() # TODO: tune # whatever number is here (will have to test)  Turning left to then go forward and avoid obstacle
+        
+        print(self.distance_sensors[1].distance)
+        while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
+            self.vehicle.drive_forward(1) # TODO: tune
+            
+        print(self.distance_sensors[1].distance)
+        self.vehicle.stop()
+        self.vehicle.rotate_left() 
+        # stop when cleared obstacle horizontally 
+        # self.vehicle.pivot_right(0.4) # Turning left to then go forward and get around obstacle
+        # time.sleep(0.2) # Turning left to then go forward to get around obstacle 
+        
+        # self.vehicle.drive_forward(0.4)  #creeps forwards a little
+        # time.sleep(0.2) #creeps forwards a little
 
-        while self.distance_sensors[1].distance != 1: #while the distance from the left sensor to the obstacle is not 0, move forward
-            self.vehicle.drive_forward(0.2) 
+        # while self.distance_sensors[1].distance != 1: #while the distance from the left sensor to the obstacle is not 0, move forward
+        #     self.vehicle.drive_forward(0.2) 
                         #stop
 
     def logic(self):
@@ -108,49 +124,47 @@ class Brain(base.Brain):
             # print(self.sample_hz)
             self.state = self.next_state
         
-            print(self.state)
             match self.state:
                 case "fake_forward":
                     if self.check_front_distance():
                         self.next_state = "avoid"
                         return
                     
-                    self.vehicle.drive_forward(0.3)
+                    self.vehicle.drive_forward(0.5)
                     self.next_state = "fake_forward"
                         
-                        # self.vehicle.drive_forward(0.8)
-                        self.next_state = self.line_following() # should call drive_forward and sets next_state
-                        
-                    case "avoid":
-                        self.vehicle.avoid()
-                        self.next_state.forward()
-                        # go to state blue line ???
-                        
-
-                        
-                    case "stop":
-                        self.vehicle.stop()
-                        self.next_state = "stop"
-                        
-                    case "kill":
-                        self.vehicle.stop()
-                        self.next_state = None
-                        return False
-
-                    case _:
-                        self.vehicle.stop()
-                        self.next_state = None
-                        return False
+                case "forward":
+                    if self.check_front_distance():
+                        self.next_state = "avoid"
+                        return
                     
+                    # print("line following")
+                    self.next_state = self.line_following() # should call drive_forward and sets next_state
                     
-                time.sleep(max(0, 1 / self.sample_hz - (time.time() - start_time)))
+                case "avoid":
+                    self.vehicle.stop()
+                    time.sleep(1)
+                    
+                    self.avoid()
+                    self.next_state = "kill"
+                    # self.next_state = "forward"
+                    
+                case "stop":
+                    self.vehicle.stop()
+                    self.next_state = "stop"
+                    
+                case "kill":
+                    self.vehicle.stop()
+                    self.next_state = "kill"
+                    return False
 
-        # if anything is detected by the sonic sensors, stop the car
-        # stop = False
-        # for distance_sensor in self.distance_sensors:
-        #     if distance_sensor.distance < 0.25:
-        #         self.vehicle.stop()
-        #         stop = True
+                case _:
+                    self.vehicle.stop()
+                    self.next_state = None
+                    return False
                 
-
-        #
+        except KeyboardInterrupt:
+            print("Dying State:", self.state)
+            self.vehicle.stop()
+            self.next_state = None
+            return False
