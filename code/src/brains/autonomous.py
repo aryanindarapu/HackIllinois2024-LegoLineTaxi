@@ -53,13 +53,13 @@ class Brain(base.Brain):
                 img_center = image.shape[1] // 2  # Get the center x-coordinate of the image
                 
                 if cx < img_center - 50:  # Threshold to avoid minor deviations
-                    self.vehicle.pivot_left(0.45)
-                    print("Pivoting left")
+                    self.vehicle.turn_left(0.5)
+                    print("Turning left")
                 elif cx > img_center + 50:
-                    self.vehicle.pivot_right(0.45)
-                    print("Pivoting right")
+                    self.vehicle.turn_right(0.5)
+                    print("Turning right")
                 else:
-                    self.vehicle.drive_forward(0.5) # TODO: tune
+                    self.vehicle.drive_forward(0.6) # TODO: tune
                     print("Driving forward")
                     
                 next_state = "forward"
