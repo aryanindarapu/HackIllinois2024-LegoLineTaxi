@@ -4,6 +4,8 @@ This project was developed over 36 hours as part of the HackIllinois 2024 John D
 
 [Demo of Working Robot](https://www.youtube.com/watch?v=of0GdRucxwA)
 
+![IMG_3265](https://github.com/aryanindarapu/HackIllinois2024-LegoLineTaxi/assets/25874004/435b8571-a808-4870-a94d-af26794e34b2)
+
 ## Inspiration
 
 We recognized the critical importance of reliability and safety in the development of autonomous systems like those of John Deere. **To embody these ideals, our aim was to create a robot capable of following a set trajectory while also being adept at obstacle avoidance, mirroring the real-world challenges faced in the field.**
