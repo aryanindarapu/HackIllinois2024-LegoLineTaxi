@@ -2,6 +2,7 @@ from typing import TypedDict
 from src import params, vehicle as vehicle_module, camera as camera_module, distance_sensor as distance_sensor_module, led as led_module, switch as switch_module
 from src.brains import ModuleTypes as BrainModuleTypes, Types as BrainTypes
 import json
+import time
 
 
 class Config(TypedDict):
@@ -20,17 +21,26 @@ config: Config = json.loads(params.CONFIG_PATH.read_text())
 camera_config = config['camera']
 camera = camera_module.Camera(camera_config)
 
+# Load LEDs
+leds_config = config['leds']
+leds: list[led_module.LED] = []
+for d in leds_config:
+    leds.append(led_module.LED(d))
+
 # Load Distance Sensors
 distance_sensors_config = config['distance_sensors']
 distance_sensors: list[distance_sensor_module.DistanceSensor] = []
 for d in distance_sensors_config:
     distance_sensors.append(distance_sensor_module.DistanceSensor(d))
 
-# Load LEDs
-leds_config = config['leds']
-leds: list[led_module.LED] = []
-for d in leds_config:
-    leds.append(led_module.LED(d))
+print(1, distance_sensors[0].distance)
+leds[0].on()
+print(2, distance_sensors[1].distance)
+leds[1].on()
+
+time.sleep(1)
+leds[0].off()
+leds[1].off()
 
 # Load Switches
 switches_config = config['switches']
