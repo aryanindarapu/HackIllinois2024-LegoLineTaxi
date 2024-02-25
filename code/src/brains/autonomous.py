@@ -38,7 +38,7 @@ class Brain(base.Brain):
 
         # Find contours in the mask
         contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+        self.vehicle.stop()
         next_state = None
         if contours:
             # Assume the largest contour is the blue line
@@ -52,11 +52,21 @@ class Brain(base.Brain):
                 
                 img_center = image.shape[1] // 2  # Get the center x-coordinate of the image
                 
-                if cx < img_center - 50:  # Threshold to avoid minor deviations
-                    self.vehicle.turn_left(0.5)
+                # if cx < img_center - 50:  # Threshold to avoid minor deviations
+                #     self.vehicle.pivot_left(0.45)
+                #     print("Pivoting left")
+                # elif cx > img_center + 50:
+                #     self.vehicle.pivot_right(0.45)
+                #     print("Pivoting right")
+                # else:
+                #     self.vehicle.drive_forward(0.5) # TODO: tune
+                #     print("Driving forward")
+                
+                if cx < img_center - 75:  # Threshold to avoid minor deviations
+                    self.vehicle.turn_left(0.45)
                     print("Turning left")
-                elif cx > img_center + 50:
-                    self.vehicle.turn_right(0.5)
+                elif cx > img_center + 75:
+                    self.vehicle.turn_right(0.45)
                     print("Turning right")
                 else:
                     self.vehicle.drive_forward(0.6) # TODO: tune
@@ -65,11 +75,12 @@ class Brain(base.Brain):
                 next_state = "forward"
             else:
                 print("Contour too small or not detected")  # Default action if contour is too small or not detected
-                # self.vehicle.stop()
+                self.vehicle.stop()
                 next_state = "forward"
                 # TODO: do something different maybe
         else:
             print("No blue line detected")  # Default action if no blue line is detected
+            self.vehicle.stop()
             next_state = "forward"
             # TODO: do something different maybe
             
@@ -87,24 +98,92 @@ class Brain(base.Brain):
         # self.vehicle.pivot_left(0.4) # TODO: tune # whatever number is here (will have to test) Turning right to then go forward and avoid obstacle
         # time.sleep(1) # TODO: tune # whatever number is here (will have to test)  Turning right to then go forward and avoid obstacle
         self.vehicle.rotate_right()
-
-        # time.sleep(0.5)
-        print(self.distance_sensors[1].distance)
+         
         while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
-            self.vehicle.drive_forward(1) # TODO: tune
+            print(self.distance_sensors[1].distance)
+            self.vehicle.stop()
+            if self.distance_sensors[1].distance < 0.06:
+                # self.vehicle.pivot_right(0.4)
+                self.vehicle.turn_right(0.6)
+                time.sleep(0.15)
+            elif 0.05 <= self.distance_sensors[1].distance < 0.22:
+                self.vehicle.drive_forward(0.6)
+                time.sleep(0.15)
+            elif self.distance_sensors[1].distance == 1.0:
+                while self.distance_sensors[1].distance == 1.0:
+                    self.vehicle.turn_left(0.6)
+                    time.sleep(0.15)
+                    self.vehicle.stop()
+                    time.sleep(0.1)
+            else:
+                # self.vehicle.pivot_left(0.4)
+                self.vehicle.turn_left(0.45)
+                time.sleep(0.15)
+            # self.vehicle.drive_forward(0.8) # TODO: tune
             # self.vehicle.drive(0.5, True, 0.5, True)
-        
-        print(self.distance_sensors[1].distance)
-        self.vehicle.stop()
-        self.vehicle.rotate_left() # TODO: tune # whatever number is here (will have to test)  Turning left to then go forward and avoid obstacle
-        
-        print(self.distance_sensors[1].distance)
-        while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
-            self.vehicle.drive_forward(1) # TODO: tune
+            
+        # while self.distance_sensors[1].distance > 0.6:
+        #     self.vehicle.pivot_left(0.6)
+            
             
         print(self.distance_sensors[1].distance)
         self.vehicle.stop()
-        self.vehicle.rotate_left() 
+        time.sleep(0.1)
+        
+        # print("turning left")
+        while self.distance_sensors[1].distance == 1.0:
+            self.vehicle.turn_left(0.6)
+            time.sleep(0.15)
+            self.vehicle.stop()
+            time.sleep(0.1)
+        # self.vehicle.turn_left(0.6)
+        # time.sleep(0.45)
+        # self.vehicle.stop()
+        # time.sleep(0.1)
+        
+        print("driving forward")
+        self.vehicle.drive_forward(0.6)
+        time.sleep(0.6)
+        self.vehicle.stop()
+        time.sleep(0.1)
+        
+        while self.distance_sensors[1].distance == 1.0:
+            self.vehicle.turn_left(0.6)
+            time.sleep(0.15)
+            self.vehicle.stop()
+            time.sleep(0.1)
+        
+        print(self.distance_sensors[1].distance)
+        while self.distance_sensors[1].distance != 1.0:
+            print("starting on right edge")
+            print(self.distance_sensors[1].distance)
+            self.vehicle.stop()
+            if self.distance_sensors[1].distance < 0.05:
+                # self.vehicle.pivot_right(0.4)
+                self.vehicle.turn_right(0.6)
+                time.sleep(0.15)
+            elif 0.05 <= self.distance_sensors[1].distance < 0.25:
+                self.vehicle.drive_forward(0.6)
+                time.sleep(0.15)
+            else:
+                # self.vehicle.pivot_left(0.4)
+                self.vehicle.turn_left(0.6)
+                time.sleep(0.15)
+        
+        
+        # # while self.distance_sensors[1].distance > 0.6:
+        # # self.vehicle.rotate_left() # TODO: tune # whatever number is here (will have to test)  Turning left to then go forward and avoid obstacle
+        
+        # print(self.distance_sensors[1].distance)
+        # while self.distance_sensors[1].distance != 1.0: # TODO: tune # while the distance from the left sensor to the obstacle is < 0.6, move forward
+        #     self.vehicle.drive_forward(1) # TODO: tune
+            
+        # print(self.distance_sensors[1].distance)
+        # self.vehicle.stop()
+        # self.vehicle.rotate_left() 
+        
+        
+        
         # stop when cleared obstacle horizontally 
         # self.vehicle.pivot_right(0.4) # Turning left to then go forward and get around obstacle
         # time.sleep(0.2) # Turning left to then go forward to get around obstacle 

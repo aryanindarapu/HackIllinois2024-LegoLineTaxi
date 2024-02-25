@@ -62,10 +62,10 @@ class Vehicle:
         time.sleep(1)
 
     def turn_left(self, speed: float = 1.0) -> None:
-        self.left_motor.forward(speed)
+        self.right_motor.forward(speed)
 
     def turn_right(self, speed: float = 1.0) -> None:
-        self.right_motor.forward(speed)
+        self.left_motor.forward(speed)
 
     def drive(self, left_speed: float, left_direction: bool, right_speed: float, right_direction: bool) -> None:
         """Control each motor's speed and direction independently"""
